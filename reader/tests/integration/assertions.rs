@@ -1,6 +1,6 @@
 extern crate rjvm_reader;
 
-use rjvm_reader::{class_file_method::ClassFileMethod, method_flags::MethodFlags};
+use rjvm_reader::{class::file::method::ClassFileMethod, method_flags::MethodFlags};
 
 pub fn check_method(
     method: &ClassFileMethod,

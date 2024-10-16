@@ -1,4 +1,4 @@
-use crate::class_reader_error::ClassReaderError;
+use crate::class::reader::error::ClassReaderError;
 
 /// Represents a Java bytecode instruction.
 //noinspection SpellCheckingInspection

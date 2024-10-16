@@ -1,10 +1,10 @@
 extern crate rjvm_reader;
 
 use rjvm_reader::{
-    class_access_flags::ClassAccessFlags,
-    class_file::ClassFile,
-    class_file_field::ClassFileField,
-    class_file_version::ClassFileVersion,
+    class::{
+        access_flags::ClassAccessFlags,
+        file::{field::ClassFileField, version::ClassFileVersion, ClassFile},
+    },
     field_flags::FieldFlags,
     field_type::{BaseType, FieldType},
     line_number::LineNumber,

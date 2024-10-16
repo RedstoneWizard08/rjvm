@@ -3,7 +3,7 @@ use std::{
     fmt::{Display, Formatter},
 };
 
-use crate::{buffer::BufferError, constant_pool::InvalidConstantPoolIndexError};
+use crate::{buf::BufferError, constant_pool::InvalidConstantPoolIndexError};
 
 /// Models the possible errors returned when reading a .class file
 #[derive(Debug, PartialEq, Eq)]

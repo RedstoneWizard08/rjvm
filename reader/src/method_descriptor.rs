@@ -3,7 +3,7 @@ use std::{fmt, fmt::Formatter, str::Chars};
 use itertools::Itertools;
 
 use crate::{
-    class_reader_error::{ClassReaderError, ClassReaderError::InvalidTypeDescriptor},
+    class::reader::error::ClassReaderError::{self, InvalidTypeDescriptor},
     field_type::FieldType,
 };
 
@@ -91,7 +91,7 @@ impl MethodDescriptor {
 #[cfg(test)]
 mod tests {
     use crate::{
-        class_reader_error::ClassReaderError,
+        class::reader::error::ClassReaderError,
         field_type::{BaseType, FieldType},
         method_descriptor::MethodDescriptor,
     };

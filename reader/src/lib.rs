@@ -1,15 +1,9 @@
 #[macro_use]
 extern crate bitflags;
 
-mod attribute;
-mod buffer;
-pub mod class_access_flags;
-pub mod class_file;
-pub mod class_file_field;
-pub mod class_file_method;
-pub mod class_file_version;
-pub mod class_reader;
-pub mod class_reader_error;
+pub mod attr;
+pub mod buf;
+pub mod class;
 pub mod constant_pool;
 pub mod exception_table;
 pub mod field_flags;

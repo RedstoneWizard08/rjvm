@@ -1,14 +1,12 @@
+pub mod error;
+
+use error::{ClassReaderError, Result};
 use log::warn;
 use result::prelude::*;
 
 use crate::{
-    attribute::Attribute,
-    class_access_flags::ClassAccessFlags,
-    class_file::ClassFile,
-    class_file_field::{ClassFileField, FieldConstantValue},
-    class_file_method::{ClassFileMethod, ClassFileMethodCode},
-    class_file_version::ClassFileVersion,
-    class_reader_error::{ClassReaderError, Result},
+    attr::Attribute,
+    buf::Buffer,
     constant_pool::{ConstantPool, ConstantPoolEntry},
     exception_table::{ExceptionTable, ExceptionTableEntry},
     field_flags::FieldFlags,
@@ -18,12 +16,22 @@ use crate::{
     method_descriptor::MethodDescriptor,
     method_flags::MethodFlags,
     program_counter::ProgramCounter,
+    type_conversion::ToUsizeSafe,
 };
-use crate::{buffer::Buffer, type_conversion::ToUsizeSafe};
+
+use super::{
+    access_flags::ClassAccessFlags,
+    file::{
+        field::{ClassFileField, FieldConstantValue},
+        method::{ClassFileMethod, ClassFileMethodCode},
+        version::ClassFileVersion,
+        ClassFile,
+    },
+};
 
 /// A reader of a byte array representing a class. Supports only a subset of Java 7 class format,
 /// in particular it does not support generics.
-struct ClassFileReader<'a> {
+pub struct ClassFileReader<'a> {
     buffer: Buffer<'a>,
     /// The class being read, created empty and updated in place
     class_file: ClassFile,
@@ -31,14 +39,14 @@ struct ClassFileReader<'a> {
 
 /// Reference: https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 impl<'a> ClassFileReader<'a> {
-    fn new(data: &[u8]) -> ClassFileReader {
+    pub fn new(data: &[u8]) -> ClassFileReader {
         ClassFileReader {
             buffer: Buffer::new(data),
             class_file: Default::default(),
         }
     }
 
-    fn read(mut self) -> Result<ClassFile> {
+    pub fn read(mut self) -> Result<ClassFile> {
         self.check_magic_number()?;
         self.read_version()?;
         self.read_constants()?;
@@ -524,7 +532,7 @@ pub fn read_buffer(buf: &[u8]) -> Result<ClassFile> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{class_reader::read_buffer, class_reader_error::ClassReaderError};
+    use crate::class::reader::{error::ClassReaderError, read_buffer};
 
     #[test]
     fn magic_number_is_required() {

@@ -1,7 +1,7 @@
 extern crate rjvm_reader;
 
 use rjvm_reader::{
-    class_file::ClassFile,
+    class::file::ClassFile,
     exception_table::{ExceptionTable, ExceptionTableEntry},
     method_flags::MethodFlags,
     program_counter::ProgramCounter,

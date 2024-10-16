@@ -1,7 +1,7 @@
 use std::{fmt, fmt::Formatter};
 
 use crate::{
-    attribute::Attribute,
+    attr::Attribute,
     exception_table::ExceptionTable,
     field_type::{BaseType, FieldType},
     instruction::Instruction,

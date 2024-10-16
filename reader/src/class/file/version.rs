@@ -1,4 +1,4 @@
-use crate::class_reader_error::{ClassReaderError, Result};
+use crate::class::reader::error::{ClassReaderError, Result};
 
 /// Versions of the JVM class file format.
 #[derive(Debug, PartialEq, Default, strum_macros::Display)]
@@ -62,7 +62,7 @@ impl ClassFileVersion {
 
 #[cfg(test)]
 mod tests {
-    use crate::{class_file_version::ClassFileVersion, class_reader_error::ClassReaderError};
+    use crate::class::{file::version::ClassFileVersion, reader::error::ClassReaderError};
 
     #[test]
     fn can_parse_known_versions() {

@@ -1,10 +1,8 @@
-use std::{fmt, fmt::Formatter, str::Chars};
-
 use itertools::Itertools;
-
+use std::{fmt, fmt::Formatter, str::Chars};
 use ClassReaderError::InvalidTypeDescriptor;
 
-use crate::class_reader_error::ClassReaderError;
+use crate::class::reader::error::ClassReaderError;
 
 /// Models the type of one field, or one parameter of a method
 #[derive(Debug, Clone, PartialEq)]
@@ -91,7 +89,7 @@ impl FieldType {
 #[cfg(test)]
 mod tests {
     use crate::{
-        class_reader_error::ClassReaderError,
+        class::reader::error::ClassReaderError,
         field_type::{BaseType, FieldType},
     };
 

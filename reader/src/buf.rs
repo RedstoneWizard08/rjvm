@@ -90,7 +90,7 @@ impl<'a> Buffer<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::buffer::Buffer;
+    use crate::buf::Buffer;
 
     #[test]
     fn buffer_works() {

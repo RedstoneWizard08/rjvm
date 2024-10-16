@@ -1,10 +1,13 @@
-use std::fmt;
+pub mod field;
+pub mod method;
+pub mod version;
 
-use crate::{
-    class_access_flags::ClassAccessFlags, class_file_field::ClassFileField,
-    class_file_method::ClassFileMethod, class_file_version::ClassFileVersion,
-    constant_pool::ConstantPool,
-};
+use super::access_flags::ClassAccessFlags;
+use crate::constant_pool::ConstantPool;
+use field::ClassFileField;
+use method::ClassFileMethod;
+use std::fmt;
+use version::ClassFileVersion;
 
 /// Represents the content of a .class file.
 #[derive(Debug, Default)]
