@@ -4,15 +4,14 @@ use indexmap::IndexMap;
 use log::debug;
 use typed_arena::Arena;
 
-use rjvm_reader::{class_file::ClassFile, class_reader};
-
-use crate::{
-    class::{Class, ClassId, ClassRef},
-    class_loader::ClassLoader,
-    class_path::{ClassPath, ClassPathParseError},
-    class_resolver_by_id::ClassByIdResolver,
-    vm_error::VmError,
+use super::{
+    loader::ClassLoader,
+    path::{ClassPath, ClassPathParseError},
+    resolver::ClassByIdResolver,
+    Class, ClassId, ClassRef,
 };
+use crate::vm_error::VmError;
+use rjvm_reader::{read_buffer, ClassFile};
 
 /// An object that will allocate and manage Class objects
 pub(crate) struct ClassManager<'a> {
@@ -109,7 +108,7 @@ impl<'a> ClassManager<'a> {
             .resolve(class_name)
             .map_err(|err| VmError::ClassLoadingError(err.to_string()))?
             .ok_or(VmError::ClassNotFoundException(class_name.to_string()))?;
-        let class_file = class_reader::read_buffer(&class_file_bytes)
+        let class_file = read_buffer(&class_file_bytes)
             .map_err(|err| VmError::ClassLoadingError(err.to_string()))?;
         self.load_class(class_file)
     }
@@ -216,6 +215,7 @@ impl<'a> ClassManager<'a> {
 
         Ok(Class {
             id,
+            version: class_file.version,
             name: class_file.name,
             source_file: class_file.source_file,
             constants: class_file.constants,

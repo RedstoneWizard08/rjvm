@@ -1,10 +1,9 @@
 use std::{fmt, fmt::Formatter};
 
+use log::debug;
 use typed_arena::Arena;
 
-use rjvm_reader::{
-    class_file_method::ClassFileMethodCode, method_flags::MethodFlags, type_conversion::ToUsizeSafe,
-};
+use rjvm_reader::{method_flags::MethodFlags, type_conversion::ToUsizeSafe, ClassFileMethodCode};
 
 use crate::{
     abstract_object::AbstractObject, call_frame::CallFrame, class_and_method::ClassAndMethod,

@@ -3,16 +3,21 @@ use std::{
     fmt::{Display, Formatter},
 };
 
-use crate::{buf::BufferError, constant_pool::InvalidConstantPoolIndexError};
+use crate::{
+    buf::BufferError, constant_pool::InvalidConstantPoolIndexError, ConstantPoolFormattingError,
+};
 
 /// Models the possible errors returned when reading a .class file
 #[derive(Debug, PartialEq, Eq)]
 pub enum ClassReaderError {
     /// Generic error meaning that the class file is invalid
-    InvalidClassData(String, Option<InvalidConstantPoolIndexError>),
+    InvalidClassData(String, Option<ConstantPoolFormattingError>),
+    /// Generic error meaning that the class file is invalid
+    InvalidClassDataIndex(String, Option<InvalidConstantPoolIndexError>),
     UnsupportedVersion(u16, u16),
     /// Error while parsing a given type descriptor in the file
     InvalidTypeDescriptor(String),
+    InvalidMethodKind(u8),
 }
 
 impl ClassReaderError {
@@ -27,11 +32,17 @@ impl Display for ClassReaderError {
             ClassReaderError::InvalidClassData(details, _) => {
                 write!(f, "invalid class file: {details}")
             }
+            ClassReaderError::InvalidClassDataIndex(details, _) => {
+                write!(f, "invalid class file: {details}")
+            }
             ClassReaderError::UnsupportedVersion(major, minor) => {
                 write!(f, "unsupported class file version {major}.{minor}")
             }
             ClassReaderError::InvalidTypeDescriptor(descriptor) => {
                 write!(f, "invalid type descriptor: {descriptor}")
+            }
+            ClassReaderError::InvalidMethodKind(it) => {
+                write!(f, "invalid method handle kind: {it}")
             }
         }
     }
@@ -48,9 +59,15 @@ impl Error for ClassReaderError {
 
 pub type Result<T> = std::result::Result<T, ClassReaderError>;
 
+impl From<ConstantPoolFormattingError> for ClassReaderError {
+    fn from(err: ConstantPoolFormattingError) -> Self {
+        Self::InvalidClassData(err.to_string(), Some(err))
+    }
+}
+
 impl From<InvalidConstantPoolIndexError> for ClassReaderError {
     fn from(err: InvalidConstantPoolIndexError) -> Self {
-        Self::InvalidClassData(err.to_string(), Some(err))
+        Self::InvalidClassDataIndex(err.to_string(), Some(err))
     }
 }
 

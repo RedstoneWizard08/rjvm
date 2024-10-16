@@ -2,12 +2,13 @@ pub mod field;
 pub mod method;
 pub mod version;
 
+pub use field::*;
+pub use method::*;
+pub use version::*;
+
 use super::access_flags::ClassAccessFlags;
 use crate::constant_pool::ConstantPool;
-use field::ClassFileField;
-use method::ClassFileMethod;
 use std::fmt;
-use version::ClassFileVersion;
 
 /// Represents the content of a .class file.
 #[derive(Debug, Default)]

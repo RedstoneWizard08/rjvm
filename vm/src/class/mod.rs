@@ -1,9 +1,13 @@
-use std::{fmt, fmt::Formatter};
+pub mod loader;
+pub mod manager;
+pub mod path;
+pub mod path_entry;
+pub mod resolver;
 
 use rjvm_reader::{
-    class_access_flags::ClassAccessFlags, class_file_field::ClassFileField,
-    class_file_method::ClassFileMethod, constant_pool::ConstantPool,
+    ClassAccessFlags, ClassFileField, ClassFileMethod, ClassFileVersion, ConstantPool,
 };
+use std::{fmt, fmt::Formatter};
 
 /// In various data structures, we store the class id of the object, i..e. a progressive
 /// number assigned when we load the class. Note that, while we do not support it yet,
@@ -34,6 +38,7 @@ impl ClassId {
 pub struct Class<'a> {
     pub id: ClassId,
     pub name: String,
+    pub version: ClassFileVersion,
     /// Source file is stored as an attribute in the .class file, but might be missing
     /// for synthetic classes or if the compiler didn't write it.
     pub source_file: Option<String>,

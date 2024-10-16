@@ -2,10 +2,11 @@ use log::debug;
 use thiserror::Error;
 
 use crate::{
-    class_path_entry::{ClassLoadingError, ClassPathEntry},
     file_system_class_path_entry::FileSystemClassPathEntry,
     jar_file_class_path_entry::JarFileClassPathEntry,
 };
+
+use super::path_entry::{ClassLoadingError, ClassPathEntry};
 
 /// Models a class path, i.e. a list of [ClassPathEntry]
 #[allow(dead_code)]

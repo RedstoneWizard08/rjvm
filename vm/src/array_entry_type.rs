@@ -1,6 +1,6 @@
 use rjvm_reader::field_type::{BaseType, FieldType};
 
-use crate::{class::ClassId, class_resolver_by_id::ClassByIdResolver};
+use crate::class::{resolver::ClassByIdResolver, ClassId};
 
 #[derive(PartialEq, Clone, Debug)]
 #[repr(u8)]

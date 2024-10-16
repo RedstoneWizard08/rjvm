@@ -1,4 +1,4 @@
-use rjvm_reader::{class_file_method::ClassFileMethod, field_type::FieldType};
+use rjvm_reader::{field_type::FieldType, ClassFileMethod};
 
 use crate::class::ClassRef;
 

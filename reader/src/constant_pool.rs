@@ -16,6 +16,12 @@ pub enum ConstantPoolEntry {
     MethodReference(u16, u16),
     InterfaceMethodReference(u16, u16),
     NameAndTypeDescriptor(u16, u16),
+    MethodHandle(u8, u16),
+    MethodType(u16),
+    DynamicInfo(u16, u16),
+    InvokeDynamicInfo(u16, u16),
+    ModuleInfo(u16),
+    PackageInfo(u16),
 }
 
 /// Constants in the pool generally take one slot, but long and double take two. We do not use
@@ -38,6 +44,21 @@ pub struct ConstantPool {
 #[error("invalid constant pool index: {index}")]
 pub struct InvalidConstantPoolIndexError {
     pub index: u16,
+}
+
+#[derive(Error, Debug, PartialEq, Eq)]
+#[error("invalid method handle kind: {kind}")]
+pub struct InvalidMethodHandleKindError {
+    pub kind: u8,
+}
+
+#[derive(Error, Debug, PartialEq, Eq)]
+pub enum ConstantPoolFormattingError {
+    #[error(transparent)]
+    PoolIndex(#[from] InvalidConstantPoolIndexError),
+
+    #[error(transparent)]
+    MethodHandleKind(#[from] InvalidMethodHandleKindError),
 }
 
 impl InvalidConstantPoolIndexError {
@@ -84,7 +105,7 @@ impl ConstantPool {
         }
     }
 
-    fn fmt_entry(&self, idx: u16) -> Result<String, InvalidConstantPoolIndexError> {
+    fn fmt_entry(&self, idx: u16) -> Result<String, ConstantPoolFormattingError> {
         let entry = self.get(idx)?;
         let text = match entry {
             ConstantPoolEntry::Utf8(ref s) => format!("String: \"{s}\""),
@@ -134,11 +155,47 @@ impl ConstantPool {
                     self.fmt_entry(j)?
                 )
             }
+            &ConstantPoolEntry::MethodHandle(i, j) => {
+                format!(
+                    "MethodHandle: {}, {} => ({}), ({})",
+                    i,
+                    j,
+                    self.method_handle_kind(i)?,
+                    self.fmt_entry(j)?
+                )
+            }
+            &ConstantPoolEntry::MethodType(i) => {
+                format!("MethodType: {} => ({})", i, self.fmt_entry(i)?)
+            }
+            &ConstantPoolEntry::DynamicInfo(i, j) => {
+                format!(
+                    "DynamicInfo: {}, {} => ({}), ({})",
+                    i,
+                    j,
+                    self.fmt_entry(i)?,
+                    self.fmt_entry(j)?
+                )
+            }
+            &ConstantPoolEntry::InvokeDynamicInfo(i, j) => {
+                format!(
+                    "InvokeDynamicInfo: {}, {} => ({}), ({})",
+                    i,
+                    j,
+                    self.fmt_entry(i)?,
+                    self.fmt_entry(j)?
+                )
+            }
+            &ConstantPoolEntry::ModuleInfo(i) => {
+                format!("ModuleInfo: {} => ({})", i, self.fmt_entry(i)?)
+            }
+            &ConstantPoolEntry::PackageInfo(i) => {
+                format!("PackageInfo: {} => ({})", i, self.fmt_entry(i)?)
+            }
         };
         Ok(text)
     }
 
-    pub fn text_of(&self, idx: u16) -> Result<String, InvalidConstantPoolIndexError> {
+    pub fn text_of(&self, idx: u16) -> Result<String, ConstantPoolFormattingError> {
         let entry = self.get(idx)?;
         let text = match entry {
             ConstantPoolEntry::Utf8(ref s) => s.clone(),
@@ -160,8 +217,36 @@ impl ConstantPool {
             ConstantPoolEntry::NameAndTypeDescriptor(i, j) => {
                 format!("{}: {}", self.text_of(*i)?, self.text_of(*j)?)
             }
+            ConstantPoolEntry::MethodHandle(i, j) => {
+                format!("{}({})", self.method_handle_kind(*i)?, self.text_of(*j)?)
+            }
+            ConstantPoolEntry::MethodType(i) => self.text_of(*i)?,
+            ConstantPoolEntry::DynamicInfo(i, j) => {
+                format!("{}: {}", self.text_of(*i)?, self.text_of(*j)?)
+            }
+            ConstantPoolEntry::InvokeDynamicInfo(i, j) => {
+                format!("{}: {}", self.text_of(*i)?, self.text_of(*j)?)
+            }
+            ConstantPoolEntry::ModuleInfo(i) => self.text_of(*i)?,
+            ConstantPoolEntry::PackageInfo(i) => self.text_of(*i)?,
         };
         Ok(text)
+    }
+
+    pub fn method_handle_kind(&self, kind: u8) -> Result<String, InvalidMethodHandleKindError> {
+        Ok(match kind {
+            1 => "getField",
+            2 => "getStatic",
+            3 => "putField",
+            4 => "putStatic",
+            5 => "invokeVirtual",
+            6 => "invokeStatic",
+            7 => "invokeSpecial",
+            8 => "newInvokeSpecial",
+            9 => "invokeInterface",
+            _ => return Err(InvalidMethodHandleKindError { kind }),
+        }
+        .into())
     }
 }
 
@@ -179,7 +264,10 @@ impl fmt::Display for ConstantPool {
 
 #[cfg(test)]
 mod tests {
-    use crate::constant_pool::{ConstantPool, ConstantPoolEntry, InvalidConstantPoolIndexError};
+    use crate::{
+        constant_pool::{ConstantPool, ConstantPoolEntry, InvalidConstantPoolIndexError},
+        ConstantPoolFormattingError,
+    };
 
     #[test]
     fn constant_pool_works() {
@@ -234,9 +322,19 @@ mod tests {
         assert_eq!("1", cp.text_of(2).unwrap());
         assert_eq!("2.1", cp.text_of(3).unwrap());
         assert_eq!("123", cp.text_of(4).unwrap());
-        assert_eq!(Err(InvalidConstantPoolIndexError::new(5)), cp.text_of(5));
+        assert_eq!(
+            Err(ConstantPoolFormattingError::PoolIndex(
+                InvalidConstantPoolIndexError::new(5)
+            )),
+            cp.text_of(5)
+        );
         assert_eq!("3.56", cp.text_of(6).unwrap());
-        assert_eq!(Err(InvalidConstantPoolIndexError::new(7)), cp.text_of(7));
+        assert_eq!(
+            Err(ConstantPoolFormattingError::PoolIndex(
+                InvalidConstantPoolIndexError::new(7)
+            )),
+            cp.text_of(7)
+        );
         assert_eq!("hey", cp.text_of(8).unwrap());
         assert_eq!("hey", cp.text_of(9).unwrap());
         assert_eq!("joe", cp.text_of(10).unwrap());

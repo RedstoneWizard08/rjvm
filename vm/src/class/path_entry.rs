@@ -37,7 +37,7 @@ impl Error for ClassLoadingError {
 // Test utilities used by multiple files
 #[cfg(test)]
 pub mod tests {
-    use crate::class_path_entry::ClassPathEntry;
+    use super::ClassPathEntry;
 
     pub fn assert_can_find_class(entry: &impl ClassPathEntry, class_name: &str) {
         let buf = entry

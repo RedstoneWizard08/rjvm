@@ -9,7 +9,7 @@ use std::{
 use thiserror::Error;
 use zip::{result::ZipError, ZipArchive};
 
-use crate::class_path_entry::{ClassLoadingError, ClassPathEntry};
+use crate::class::path_entry::{ClassLoadingError, ClassPathEntry};
 
 /// Implementation of [ClassPathEntry] that searches for `.class` file inside a `.jar` file
 pub struct JarFileClassPathEntry {
@@ -86,7 +86,7 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::{
-        class_path_entry::tests::{assert_can_find_class, assert_cannot_find_class},
+        class::path_entry::tests::{assert_can_find_class, assert_cannot_find_class},
         jar_file_class_path_entry::{JarFileClassPathEntry, JarFileError},
     };
 

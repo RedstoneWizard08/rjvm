@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 pub mod abstract_object;
 pub mod alloc_entry;
 pub mod array;
@@ -6,14 +9,10 @@ mod call_frame;
 pub mod call_stack;
 pub mod class;
 pub mod class_and_method;
-mod class_loader;
-mod class_manager;
-mod class_path;
-mod class_path_entry;
-mod class_resolver_by_id;
 pub mod exceptions;
 mod file_system_class_path_entry;
 mod gc;
+pub mod handle;
 mod jar_file_class_path_entry;
 pub mod java_objects_creation;
 mod native_methods_impl;

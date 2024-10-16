@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::class_path_entry::{ClassLoadingError, ClassPathEntry};
+use crate::class::path_entry::{ClassLoadingError, ClassPathEntry};
 
 /// Implementation of [ClassPathEntry] that searches for `.class` files,
 /// using the given directory as the root package
@@ -62,7 +62,7 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::{
-        class_path_entry::tests::{assert_can_find_class, assert_cannot_find_class},
+        class::path_entry::tests::{assert_can_find_class, assert_cannot_find_class},
         file_system_class_path_entry::{FileSystemClassPathEntry, InvalidDirectoryError},
     };
 

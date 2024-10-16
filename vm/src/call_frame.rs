@@ -1,14 +1,16 @@
-use log::{debug, warn};
+use log::warn;
 
 use rjvm_reader::{
-    class_file_field::ClassFileField,
-    class_file_method::ClassFileMethod,
     constant_pool::ConstantPoolEntry,
-    field_type::{BaseType, FieldType, FieldType::Base},
+    field_type::{
+        BaseType,
+        FieldType::{self, Base},
+    },
     instruction::{Instruction, NewArrayType},
     line_number::LineNumber,
     program_counter::ProgramCounter,
     type_conversion::ToUsizeSafe,
+    ClassFileField, ClassFileMethod,
 };
 
 use crate::{
@@ -16,18 +18,15 @@ use crate::{
     array::Array,
     array_entry_type::ArrayEntryType,
     call_frame::InstructionCompleted::{ContinueMethodExecution, ReturnFromMethod},
-    call_stack::CallStack,
-    class::Class,
+    call_stack::{self, CallStack},
+    class::{resolver::ClassByIdResolver, Class},
     class_and_method::ClassAndMethod,
-    class_resolver_by_id::ClassByIdResolver,
     exceptions::{JavaException, MethodCallFailed},
+    handle::MethodHandle,
     java_objects_creation::{new_java_lang_class_object, new_java_lang_string_object},
     object::Object,
     stack_trace_element::StackTraceElement,
-    value::{
-        Value,
-        Value::{Double, Float, Int, Long, Null},
-    },
+    value::Value::{self, Double, Float, Int, Long, Null},
     value_stack::ValueStack,
     vm::Vm,
     vm_error::VmError,
@@ -486,6 +485,9 @@ impl<'a> CallFrame<'a> {
             Instruction::Invokeinterface(constant_index, _) => {
                 self.invoke_method(vm, call_stack, constant_index, InvokeKind::Interface)?
             }
+            Instruction::Invokedynamic(dynamic_index) => {
+                self.invoke_dynamic(vm, call_stack, dynamic_index)?
+            }
 
             Instruction::Return => {
                 if !self.class_and_method.is_void() {
@@ -905,6 +907,22 @@ impl<'a> CallFrame<'a> {
         }
     }
 
+    fn get_method_handle(&self, handle_index: u16) -> Result<MethodHandle, VmError> {
+        let constant = self.get_constant(handle_index)?;
+
+        let (kind, index) = match *constant {
+            ConstantPoolEntry::MethodHandle(k, i) => (k, i),
+            _ => return Err(VmError::ValidationException),
+        };
+
+        MethodHandle::resolve(
+            &self.class_and_method.class.version,
+            &self.class_and_method.class.constants,
+            kind,
+            index,
+        )
+    }
+
     fn get_constant_field_reference(&self, constant_index: u16) -> Result<FieldReference, VmError> {
         let constant = self.get_constant(constant_index)?;
         if let &ConstantPoolEntry::FieldReference(
@@ -936,6 +954,17 @@ impl<'a> CallFrame<'a> {
         } else {
             Err(VmError::ValidationException)
         }
+    }
+
+    fn invoke_dynamic(
+        &self,
+        vm: &mut Vm<'a>,
+        call_stack: &mut CallStack<'a>,
+        dynamic_index: u16,
+    ) -> Result<(), MethodCallFailed<'a>> {
+        error!("InvokeDynamic: {:?}", dynamic_index);
+        let method = self.get_method_handle(dynamic_index)?;
+        Ok(())
     }
 
     fn get_method_to_invoke_statically(

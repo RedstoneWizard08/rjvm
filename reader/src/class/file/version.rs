@@ -60,6 +60,34 @@ impl ClassFileVersion {
             _ => Err(ClassReaderError::UnsupportedVersion(major, minor)),
         }
     }
+
+    pub fn major_version(&self) -> u16 {
+        match self {
+            ClassFileVersion::Jdk1_1 => 45,
+            ClassFileVersion::Jdk1_2 => 46,
+            ClassFileVersion::Jdk1_3 => 47,
+            ClassFileVersion::Jdk1_4 => 48,
+            ClassFileVersion::Jdk1_5 => 49,
+            ClassFileVersion::Jdk6 => 50,
+            ClassFileVersion::Jdk7 => 51,
+            ClassFileVersion::Jdk8 => 52,
+            ClassFileVersion::Jdk9 => 53,
+            ClassFileVersion::Jdk10 => 54,
+            ClassFileVersion::Jdk11 => 55,
+            ClassFileVersion::Jdk12 => 56,
+            ClassFileVersion::Jdk13 => 57,
+            ClassFileVersion::Jdk14 => 58,
+            ClassFileVersion::Jdk15 => 59,
+            ClassFileVersion::Jdk16 => 60,
+            ClassFileVersion::Jdk17 => 61,
+            ClassFileVersion::Jdk18 => 62,
+            ClassFileVersion::Jdk19 => 63,
+            ClassFileVersion::Jdk20 => 64,
+            ClassFileVersion::Jdk21 => 65,
+            ClassFileVersion::Jdk22 => 66,
+            ClassFileVersion::Jdk23 => 67,
+        }
+    }
 }
 
 #[cfg(test)]

@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-javac -source 6 -target 6 rjvm/*.java
+javac -source 22 -target 22 rjvm/*.java

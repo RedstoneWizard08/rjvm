@@ -1,6 +1,6 @@
 pub mod error;
+pub use error::*;
 
-use error::{ClassReaderError, Result};
 use log::warn;
 use result::prelude::*;
 
@@ -102,6 +102,12 @@ impl<'a> ClassFileReader<'a> {
                 10 => self.read_method_reference_constant()?,
                 11 => self.read_interface_method_reference_constant()?,
                 12 => self.read_name_and_type_constant()?,
+                15 => self.read_method_handle()?,
+                16 => self.read_method_type()?,
+                17 => self.read_dynamic()?,
+                18 => self.read_invoke_dynamic()?,
+                19 => self.read_module()?,
+                20 => self.read_package()?,
                 // For newer versions of java, there are more constant types
                 _ => {
                     warn!("invalid entry in constant pool at index {} tag {}", i, tag);
@@ -358,6 +364,39 @@ impl<'a> ClassFileReader<'a> {
             deprecated,
             thrown_exceptions,
         })
+    }
+
+    fn read_method_handle(&mut self) -> Result<ConstantPoolEntry> {
+        Ok(ConstantPoolEntry::MethodHandle(
+            self.buffer.read_u8()?,
+            self.buffer.read_u16()?,
+        ))
+    }
+
+    fn read_method_type(&mut self) -> Result<ConstantPoolEntry> {
+        Ok(ConstantPoolEntry::MethodType(self.buffer.read_u16()?))
+    }
+
+    fn read_dynamic(&mut self) -> Result<ConstantPoolEntry> {
+        Ok(ConstantPoolEntry::DynamicInfo(
+            self.buffer.read_u16()?,
+            self.buffer.read_u16()?,
+        ))
+    }
+
+    fn read_invoke_dynamic(&mut self) -> Result<ConstantPoolEntry> {
+        Ok(ConstantPoolEntry::InvokeDynamicInfo(
+            self.buffer.read_u16()?,
+            self.buffer.read_u16()?,
+        ))
+    }
+
+    fn read_module(&mut self) -> Result<ConstantPoolEntry> {
+        Ok(ConstantPoolEntry::ModuleInfo(self.buffer.read_u16()?))
+    }
+
+    fn read_package(&mut self) -> Result<ConstantPoolEntry> {
+        Ok(ConstantPoolEntry::PackageInfo(self.buffer.read_u16()?))
     }
 
     fn read_method_flags(&mut self) -> Result<MethodFlags> {
