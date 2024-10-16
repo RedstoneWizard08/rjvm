@@ -1,5 +1,6 @@
 bitflags! {
     /// Possible flags of a class field
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
     pub struct FieldFlags: u16 {
         const PUBLIC = 0x0001;
         const PRIVATE = 0x0002;

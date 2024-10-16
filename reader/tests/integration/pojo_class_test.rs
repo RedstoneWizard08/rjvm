@@ -19,7 +19,7 @@ use crate::{assertions::check_method, utils};
 #[test_log::test]
 fn can_read_pojo_class_file() {
     let class = read_class_from_bytes(include_bytes!("../resources/rjvm/Complex.class"));
-    assert_eq!(ClassFileVersion::Jdk6, class.version);
+    assert_eq!(ClassFileVersion::Jdk23, class.version);
     assert_eq!(
         ClassAccessFlags::PUBLIC | ClassAccessFlags::SUPER,
         class.flags
